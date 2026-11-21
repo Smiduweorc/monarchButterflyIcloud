@@ -4,9 +4,14 @@ name: Docs
 # nothing to host. This workflow (1) checks on every PR that the docs render
 # with pkgsite, and (2) on a release tag asks proxy.golang.org for the new
 # version, which makes pkg.go.dev index it within minutes instead of whenever
-# someone first requests it.
+# someone first requests it, and (3) on every push to master mirrors the
+# pkgsite rendering to GitHub Pages, so the docs for unreleased code (or a
+# private module) can be read without pkg.go.dev.
+#
+# Pages must be enabled once: Settings → Pages → Source: "GitHub Actions".
 on:
   push:
+    branches: [master]
     tags: ["v*"]
   pull_request:
     branches: [master]
@@ -59,3 +64,58 @@ jobs:
           cd "$RUNNER_TEMP"
           go list -m "${module}@${TAG}"
           echo "https://pkg.go.dev/${module}@${TAG}"
+
+  pages-build:
+    name: Build Pages site with pkgsite
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install pinned tools
+        uses: jdx/mise-action@v4
+
+      # wget exits 8 when some links 404 (e.g. pkgsite's search); that is fine.
+      # pkgsite is a server, so crawl it into static files. --convert-links
+      # rewrites its root-absolute links (/static/…, /<module>/…) to relative
+      # ones, which keeps them working under the /<repo>/ Pages prefix.
+      - name: Mirror pkgsite into a static site
+        run: |
+          module="$(go list -m)"
+          pkgsite -open=false -http=localhost:6060 . &
+          for _ in $(seq 60); do
+            curl -fsS "http://localhost:6060/$module" -o /dev/null && break
+            sleep 2
+          done
+          mkdir -p site
+          wget --mirror --no-parent --page-requisites --convert-links \
+            --adjust-extension --no-host-directories --directory-prefix=site \
+            --execute robots=off --quiet "http://localhost:6060/$module" || [ $? -eq 8 ]
+          test -f "site/$module.html" || { echo "mirror of $module is missing" >&2; exit 1; }
+          printf '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=%s"><a href="%s">Documentation</a>\n' \
+            "$module.html" "$module.html" > site/index.html
+          touch site/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  pages-deploy:
+    name: Deploy to GitHub Pages
+    needs: pages-build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
