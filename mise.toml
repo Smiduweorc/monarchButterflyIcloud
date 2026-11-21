@@ -1,0 +1,9 @@
+# Pinned tooling. `mise install` fetches these as single binaries; no Node,
+# no package manager, nothing installed globally.
+[tools]
+go = "1.25"
+lefthook = "2"
+git-cliff = "2"
+golangci-lint = "2"
+"go:golang.org/x/vuln/cmd/govulncheck" = "1.10.0"
+"go:golang.org/x/pkgsite/cmd/pkgsite" = "0.7.0"

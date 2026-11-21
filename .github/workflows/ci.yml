@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [master, dev]
+    paths-ignore: ["**.md"]
+  pull_request:
+    branches: [master]
+    paths-ignore: ["**.md"]
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref to save CI minutes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # The commit-msg hook only runs where it is installed; this catches commits
+  # made with --no-verify or without `make setup`.
+  commits:
+    name: Commit messages
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install pinned tools
+        uses: jdx/mise-action@v4
+
+      - name: Lint every commit in the PR
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          status=0
+          for sha in $(git rev-list --no-merges "$BASE..$HEAD"); do
+            git log -1 --format=%B "$sha" > "$RUNNER_TEMP/msg"
+            echo "::group::$(git log -1 --format='%h %s' "$sha")"
+            scripts/commit-msg.sh "$RUNNER_TEMP/msg" || status=1
+            echo "::endgroup::"
+          done
+          exit "$status"
+
+  check:
+    name: Lint, test & build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Installs everything pinned in mise.toml: Go, golangci-lint,
+      # govulncheck, pkgsite, lefthook and git-cliff.
+      - name: Install pinned tools
+        uses: jdx/mise-action@v4
+
+      - name: Lint
+        run: scripts/tasks.sh lint
+
+      - name: Test
+        run: scripts/tasks.sh test
+
+      - name: Build
+        run: scripts/tasks.sh build
+
+      - name: Upload coverage
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: coverage.out
+
+  vuln:
+    name: govulncheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install pinned tools
+        uses: jdx/mise-action@v4
+
+      - name: Scan
+        run: scripts/tasks.sh vuln
+
+  # Fuzz briefly on every push; a crasher lands in testdata/fuzz and fails CI.
+  fuzz:
+    name: Fuzz
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install pinned tools
+        uses: jdx/mise-action@v4
+
+      - name: Fuzz
+        run: scripts/tasks.sh fuzz 30s

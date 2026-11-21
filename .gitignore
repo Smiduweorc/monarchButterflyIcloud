@@ -1,0 +1,9 @@
+dist
+coverage.out
+coverage.html
+*.test
+*.prof
+testdata/fuzz/*/cache
+*.log
+.DS_Store
+.idea

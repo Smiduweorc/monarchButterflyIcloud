@@ -1,0 +1,25 @@
+name: Vulnerability scan
+
+# New advisories land in the Go vulnerability database without any change to
+# this repository, so scan master on a schedule as well as in CI.
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  govulncheck:
+    name: govulncheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install pinned tools
+        uses: jdx/mise-action@v4
+
+      - name: Scan
+        run: scripts/tasks.sh vuln
