@@ -1,6 +1,6 @@
 package types
 
-// the content from the parsed json response in the derivative field
+// RawDerivative is the content of the derivative field in the parsed JSON response.
 type RawDerivative struct {
 	Checksum string  `json:"checksum"`
 	FileSize string  `json:"fileSize"`
@@ -9,7 +9,7 @@ type RawDerivative struct {
 	URL      *string `json:"url,omitempty"`
 }
 
-// RawPhoto struct from the parsed response
+// RawPhoto is a photo entry from the parsed response.
 type RawPhoto struct {
 	BatchGUID            string                   `json:"batchGUID"`
 	Derivative           map[string]RawDerivative `json:"derivative"`
@@ -21,11 +21,11 @@ type RawPhoto struct {
 	Height               string                   `json:"height"`
 	Width                string                   `json:"width"`
 	MediaAssetType       *string                  `json:"mediaAssetType"` // occasionally returns null for some reason
-	PhotoGuid            string                   `json:"photoGuid"`
+	PhotoGUID            string                   `json:"photoGuid"`
 	DateCreated          string                   `json:"dateCreated"`
 }
 
-// WebstreamResponse for the /webstream API response
+// WebstreamResponse is the /webstream API response.
 type WebstreamResponse struct {
 	Photos        []RawPhoto  `json:"photos"`
 	StreamName    string      `json:"streamName"`

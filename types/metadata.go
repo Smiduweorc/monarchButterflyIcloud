@@ -1,5 +1,6 @@
 package types
 
+// MetaData holds stream-level metadata for a shared album.
 type MetaData struct {
 	StreamName    string      `json:"streamName"`
 	UserFirstName string      `json:"userFirstName"`
