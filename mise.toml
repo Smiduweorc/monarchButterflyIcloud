@@ -1,7 +1,7 @@
 # Pinned tooling. `mise install` fetches these as single binaries; no Node,
 # no package manager, nothing installed globally.
 [tools]
-go = "1.25"
+go = "1.27.4"
 lefthook = "2"
 git-cliff = "2"
 golangci-lint = "2"
