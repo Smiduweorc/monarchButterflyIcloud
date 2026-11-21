@@ -1,10 +1,10 @@
 package types
 
 type MetaData struct {
-	StreamName    string      `json:"StreamName"`
-	UserFirstName string      `json:"UserFirstName"`
-	UserLastName  string      `json:"UserLastName"`
-	StreamCtag    string      `json:"StreamCtag"`
-	ItemsReturned int         `json:"ItemsReturned"`
-	Locations     interface{} `json:"Locations"`
+	StreamName    string      `json:"streamName"`
+	UserFirstName string      `json:"userFirstName"`
+	UserLastName  string      `json:"userLastName"`
+	StreamCtag    string      `json:"streamCtag"`
+	ItemsReturned int         `json:"itemsReturned"`
+	Locations     interface{} `json:"locations"`
 }
