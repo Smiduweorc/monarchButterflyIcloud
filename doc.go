@@ -1,14 +1,8 @@
-// Package golibtemplate is the starting point for a Smiduweorc Go library.
+// Package monarchbutterflyicloud reads public iCloud Shared Albums: the
+// album's name and owner, and for every photo and video its metadata and a
+// download URL for each rendition.
 //
-// Replace this comment with an overview of what the package does. It is the
-// first thing shown on pkg.go.dev and by `go doc`, so lead with one sentence
-// that starts with "Package <name>", then explain the main types and how they
-// fit together.
-//
-// # Usage
-//
-//	msg := golibtemplate.Greet("world")
-//	fmt.Println(msg) // hello, world
-//
-// Runnable examples live in example_test.go; pkg.go.dev renders and runs them.
-package golibtemplate
+// It talks to the same undocumented endpoints the icloud.com web viewer uses
+// (/webstream and /webasseturls). Nothing is authenticated, so only albums
+// shared as a public website work.
+package monarchbutterflyicloud
