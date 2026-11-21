@@ -1,4 +1,4 @@
-module github.com/Smiduweorc/goLibTemplates
+module github.com/Smiduweorc/monarchButterflyIcloud
 
 go 1.25
 
