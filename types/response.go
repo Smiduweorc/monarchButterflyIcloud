@@ -8,3 +8,19 @@ type RawDerivative struct {
 	Height   string  `json:"height"`
 	URL      *string `json:"url,omitempty"`
 }
+
+// RawPhoto struct from the parsed response
+type RawPhoto struct {
+	BatchGUID            string                   `json:"batchGUID"`
+	Derivative           map[string]RawDerivative `json:"derivative"`
+	ContributorLastName  string                   `json:"contributorLastName"`
+	BatchDateCreated     string                   `json:"batchDateCreated"`
+	ContributorFirstName string                   `json:"contributorFirstName"`
+	ContributorFullName  string                   `json:"contributorFullName"`
+	Caption              string                   `json:"caption"`
+	Height               string                   `json:"height"`
+	Width                string                   `json:"width"`
+	MediaAssetType       *string                  `json:"mediaAssetType"` // occasionally returns null for some reason
+	PhotoGuid            string                   `json:"photoGuid"`
+	DateCreated          string                   `json:"dateCreated"`
+}
