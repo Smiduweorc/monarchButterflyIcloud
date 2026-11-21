@@ -24,3 +24,14 @@ type RawPhoto struct {
 	PhotoGuid            string                   `json:"photoGuid"`
 	DateCreated          string                   `json:"dateCreated"`
 }
+
+// WebstreamResponse for the /webstream API response
+type WebstreamResponse struct {
+	Photos        []RawPhoto  `json:"photos"`
+	StreamName    string      `json:"streamName"`
+	UserFirstName string      `json:"userFirstName"`
+	UserLastName  string      `json:"userLastName"`
+	StreamCtag    string      `json:"streamCtag"`
+	ItemsReturned string      `json:"itemsReturned"`
+	Locations     interface{} `json:"locations"`
+}
