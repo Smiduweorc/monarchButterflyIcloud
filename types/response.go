@@ -6,5 +6,5 @@ type RawDerivative struct {
 	FileSize string  `json:"fileSize"`
 	Width    string  `json:"width"`
 	Height   string  `json:"height"`
-	URL      *string `json:"url"`
+	URL      *string `json:"url,omitempty"`
 }
